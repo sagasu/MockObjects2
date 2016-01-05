@@ -16,7 +16,7 @@ namespace MyBillingProduct
 	    public bool IsLoginOK(string user, string password)
 	    {
             if (m_users[user] != null &&
-	            (string) m_users[user] == password)
+                (string)m_users[user] == password)
             {
                 _logger.Write(string.Format("login ok: user: {0}", user));
 	            return true;
