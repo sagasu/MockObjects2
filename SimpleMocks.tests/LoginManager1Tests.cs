@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Moq;
 using MyBillingProduct;
 using NUnit.Framework;
 
@@ -13,22 +10,41 @@ namespace SimpleMocks.tests
         [Test]
         public void IsLoginOK_WhenLoggerThrowsException_LogsCorrectMessage()
         {
-            var fakeWebService = new FakeWebService();
-            var logger = FakeLogerFactory();
+            var mockWs = new Mock<IWebService>();
+            var logger = FakeLogerFactory(mockWs.Object, willThrowException: true);
             var lm = new LoginManager1(logger);
 
             lm.AddUser("a","b");
 
             lm.IsLoginOK("a","b");
 
-            Assert.AreEqual("login ok: user: a", logger.LastMessage());
+            mockWs.Verify(_ => _.Write(It.IsAny<string>()), Times.Once);
         }
 
-        private static FakeLogger FakeLogerFactory()
+        private static FakeLogger FakeLogerFactory(bool willThrowException = false)
         {
-            return new FakeLogger(new FakeWebService());
+            return FakeLogerFactory(new FakeWebService(), willThrowException);
         }
 
+        private static FakeLogger FakeLogerFactory(IWebService ws, bool willThrowException = false)
+        {
+            return new FakeLogger(ws){ WillThrowException = willThrowException };
+        }
+
+        [Test]
+        public void IsLoginOK_UsingMoq_ValidUserAndPassword_LogsMessage()
+        {
+            var loggerMock = new Mock<ILogger>();
+
+            var lm = new LoginManager1(loggerMock.Object);
+
+            lm.AddUser("a","b");
+
+            lm.IsLoginOK("a","b");
+
+            loggerMock.Verify(_ => _.Write("login ok: user: a"), Times.Once);
+        }
+        
         [Test]
         public void IsLoginOK_ValidUserAndPassword_LogsMessage()
         {
@@ -77,6 +93,23 @@ namespace SimpleMocks.tests
             lm.IsLoginOK(checkUserName, checkPassword);
 
             Assert.AreEqual(string.Format("bad login: {0},{1}", checkUserName, checkPassword), logger.LastMessage());
+
+        }
+        
+        [TestCase("a","b","c","d")]
+        [TestCase("a","b","a","d")]
+        public void IsLoginOK_UsingMock_InvalidUserOrPassword_LogsMessage(
+            string addUserName, string addPassword, 
+            string checkUserName, string checkPassword)
+        {
+            var logger = new Mock<ILogger>();
+            var lm = new LoginManager1(logger.Object);
+
+            lm.AddUser(addUserName, addPassword);
+
+            lm.IsLoginOK(checkUserName, checkPassword);
+
+            logger.Verify(_ => _.Write(string.Format("bad login: {0},{1}", checkUserName, checkPassword)), Times.Once);
         }
 
         [TestCase("a","b","a","b")]
@@ -97,10 +130,13 @@ namespace SimpleMocks.tests
 
     internal class FakeWebService : IWebService
     {
+        private string _message;
+
         public void Write(string message)
         {
-            throw new NotImplementedException();
+            _message = message;
         }
+
     }
 
     internal class FakeLogger : ILogger
