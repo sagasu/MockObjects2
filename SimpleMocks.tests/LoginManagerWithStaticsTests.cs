@@ -17,10 +17,16 @@ namespace SimpleMocks.tests
             }
 
             public string Message { get; set; }
-            protected override void CallStaticWebService(LoggerException e, string dateTime)
+
+            protected override void CallStaticWebService(string message)
             {
-                Message = dateTime + e.Message + _machineName;
+                Message = message;
             }
+            protected override string GetMachineName()
+            {
+                return _machineName;
+            }
+
 
             protected override void CallStaticWs()
             {
@@ -31,8 +37,6 @@ namespace SimpleMocks.tests
         [Test]
         public void IsLoginOK_CallStaticLogger_LogsCorrectMessage()
         {
-            //var logger = new FakeLogger(new FakeWebService());
-
             var machineName = "machineName";
             var lm = new FakeLoginManager(machineName);
 

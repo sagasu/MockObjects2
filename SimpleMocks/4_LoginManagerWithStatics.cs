@@ -22,7 +22,8 @@ namespace MyBillingProduct
 	        }
 	        catch (LoggerException e)
 	        {
-                CallStaticWebService(e, _dateTimeService.GetTime());
+	            var message = string.Format("{0}{1}{2}", _dateTimeService.GetTime(), e.Message, GetMachineName());
+                CallStaticWebService(message);
 	        }
 	        if (m_users[user] != null &&
 	            (string) m_users[user] == password)
@@ -32,14 +33,19 @@ namespace MyBillingProduct
 	        return false;
 	    }
 
+	    protected virtual string GetMachineName()
+	    {
+	        return Environment.MachineName;
+	    }
+
 	    protected virtual void CallStaticWs()
 	    {
 	        StaticLogger.Write("blah");
 	    }
 
-	    protected virtual void CallStaticWebService(LoggerException e, string dateTime)
+	    protected virtual void CallStaticWebService(string message)
 	    {
-            StaticWebService.Write(dateTime + e.Message + Environment.MachineName);
+            StaticWebService.Write(message);
 	    }
 
 
