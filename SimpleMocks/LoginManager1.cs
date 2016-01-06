@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Step1Mocks;
 
 namespace MyBillingProduct
 {
@@ -18,11 +19,17 @@ namespace MyBillingProduct
             if (m_users[user] != null &&
                 (string)m_users[user] == password)
             {
+                LogStaticMessage(user);
                 _logger.Write(string.Format("login ok: user: {0}", user));
 	            return true;
 	        }
             _logger.Write(string.Format("bad login: {0},{1}", user, password));
 	        return false;
+	    }
+
+	    protected virtual void LogStaticMessage(string user)
+	    {
+	        StaticLogger.Write(string.Format("user {0} logged in ok", user));
 	    }
 
 	    public void AddUser(string user, string password)

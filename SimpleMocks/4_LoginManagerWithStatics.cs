@@ -6,17 +6,23 @@ namespace MyBillingProduct
 {
 	public class LoginManagerWithStatics
 	{
+	    private readonly IDateTimeService _dateTimeService;
 	    private Hashtable m_users = new Hashtable();
+
+	    public LoginManagerWithStatics(IDateTimeService dateTimeService)
+	    {
+	        _dateTimeService = dateTimeService;
+	    }
 
 	    public bool IsLoginOK(string user, string password)
 	    {
 	        try
 	        {
-	           StaticLogger.Write("blah");
+	           CallStaticWs();
 	        }
 	        catch (LoggerException e)
 	        {
-	            StaticWebService.Write(e.Message + Environment.MachineName);
+                CallStaticWebService(e, _dateTimeService.GetTime());
 	        }
 	        if (m_users[user] != null &&
 	            (string) m_users[user] == password)
@@ -24,6 +30,16 @@ namespace MyBillingProduct
 	            return true;
 	        }
 	        return false;
+	    }
+
+	    protected virtual void CallStaticWs()
+	    {
+	        StaticLogger.Write("blah");
+	    }
+
+	    protected virtual void CallStaticWebService(LoggerException e, string dateTime)
+	    {
+            StaticWebService.Write(dateTime + e.Message + Environment.MachineName);
 	    }
 
 
@@ -37,4 +53,9 @@ namespace MyBillingProduct
 			m_users[user]= newPassword;
 		}
 	}
+
+    public interface IDateTimeService
+    {
+        string GetTime();
+    }
 }

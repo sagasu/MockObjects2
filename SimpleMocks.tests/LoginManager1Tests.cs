@@ -4,15 +4,44 @@ using NUnit.Framework;
 
 namespace SimpleMocks.tests
 {
+    internal class FakeLoginManager : LoginManager1
+    {
+        public string Message { get; set; }
+
+        public FakeLoginManager(ILogger logger) : base(logger)
+        {
+        }
+
+        protected override void LogStaticMessage(string user)
+        {
+            Message = string.Format("user {0} logged in ok", user);
+        }
+    }
+
     [TestFixture]
     class LoginManager1Tests
     {
+
+        [Test]
+        public void IsLoginOK_CallStaticLogger_LogsCorrectMessage()
+        {
+            var logger = FakeLogerFactory();
+            var lm = new FakeLoginManager(logger);
+
+            lm.AddUser("a", "b");
+
+            lm.IsLoginOK("a", "b");
+
+            Assert.AreEqual("user a logged in ok", lm.Message);
+        }
+
+
         [Test]
         public void IsLoginOK_WhenLoggerThrowsException_LogsCorrectMessage()
         {
             var mockWs = new Mock<IWebService>();
             var logger = FakeLogerFactory(mockWs.Object, willThrowException: true);
-            var lm = new LoginManager1(logger);
+            var lm = new FakeLoginManager(logger);
 
             lm.AddUser("a","b");
 
@@ -36,7 +65,7 @@ namespace SimpleMocks.tests
         {
             var loggerMock = new Mock<ILogger>();
 
-            var lm = new LoginManager1(loggerMock.Object);
+            var lm = new FakeLoginManager(loggerMock.Object);
 
             lm.AddUser("a","b");
 
@@ -49,7 +78,7 @@ namespace SimpleMocks.tests
         public void IsLoginOK_ValidUserAndPassword_LogsMessage()
         {
             var logger = FakeLogerFactory();
-            var lm = new LoginManager1(logger);
+            var lm = new FakeLoginManager(logger);
 
             lm.AddUser("a","b");
 
@@ -65,7 +94,7 @@ namespace SimpleMocks.tests
         public void IsLoginOK_ValidUserAndPassword_FailsToCompareHashtable()
         {
             var logger = FakeLogerFactory();
-            var lm = new LoginManager1(logger);
+            var lm = new FakeLoginManager(logger);
 
             var addUserName = new string(new []{'a'});
             var addPassword = new string(new[] { 'b' });
@@ -86,7 +115,7 @@ namespace SimpleMocks.tests
             string checkUserName, string checkPassword)
         {
             var logger = FakeLogerFactory();
-            var lm = new LoginManager1(logger);
+            var lm = new FakeLoginManager(logger);
 
             lm.AddUser(addUserName, addPassword);
 
@@ -103,7 +132,7 @@ namespace SimpleMocks.tests
             string checkUserName, string checkPassword)
         {
             var logger = new Mock<ILogger>();
-            var lm = new LoginManager1(logger.Object);
+            var lm = new FakeLoginManager(logger.Object);
 
             lm.AddUser(addUserName, addPassword);
 
@@ -118,7 +147,7 @@ namespace SimpleMocks.tests
             string checkUserName, string checkPassword)
         {
             var logger = FakeLogerFactory();
-            var lm = new LoginManager1(logger);
+            var lm = new FakeLoginManager(logger);
 
             lm.AddUser(addUserName, addPassword);
 
@@ -139,7 +168,7 @@ namespace SimpleMocks.tests
 
     }
 
-    internal class FakeLogger : ILogger
+    public class FakeLogger : ILogger
     {
         private readonly IWebService _fakeWebService;
         private string _message;
