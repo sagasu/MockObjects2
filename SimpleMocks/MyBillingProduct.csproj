@@ -110,6 +110,7 @@
     </Compile>
     <Compile Include="LoginManager1.cs" />
     <Compile Include="LoginManager2.cs" />
+    <Compile Include="PasswordValidator.cs" />
     <Compile Include="Statics\StaticLogger.cs" />
     <Compile Include="Statics\StaticWebService.cs" />
     <Compile Include="InterfaceImpl\WebService.cs" />

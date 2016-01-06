@@ -22,7 +22,7 @@ namespace MyBillingProduct
 	        }
 	        catch (LoggerException e)
 	        {
-	            var message = string.Format("{0}{1}{2}", _dateTimeService.GetTime(), e.Message, GetMachineName());
+	            var message = string.Format("{0} {1}{2}", _dateTimeService.GetTime(), e.Message, GetMachineName());
                 CallStaticWebService(message);
 	        }
 	        if (m_users[user] != null &&

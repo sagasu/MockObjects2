@@ -44,7 +44,7 @@ namespace SimpleMocks.tests
 
             lm.IsLoginOK("a", "b");
 
-            Assert.AreEqual(new FakeDateTimeService().GetTime() + "My Exception " + machineName, lm.Message);
+            Assert.AreEqual("12.12.12 12:33:55 My Exception machineName", lm.Message);
         }
     }
 
